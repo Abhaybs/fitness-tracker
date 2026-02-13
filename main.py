@@ -1,4 +1,5 @@
 import cv2
+import requests
 import numpy as np
 from ultralytics import YOLO
 
@@ -94,6 +95,24 @@ def main():
 
     cap.release()
     cv2.destroyAllWindows()
+    if counter > 0:
+        print(f"Attempting to log {counter} reps...")
+        payload = {
+            "reps": counter,
+            "view_type": VIEW # or "front" if using the front script
+        }
+        
+        try:
+            # Send the POST request to our local FastAPI server
+            response = requests.post("http://127.0.0.1:8000/log_pushups/", json=payload)
+            
+            if response.status_code == 200:
+                print("Successfully logged to API:", response.json())
+            else:
+                print(f"Failed to log. Server responded with: {response.status_code}")
+                
+        except requests.exceptions.ConnectionError:
+            print("Error: Could not connect to the API. Is Uvicorn running?")
 
 if __name__ == "__main__":
     main()
