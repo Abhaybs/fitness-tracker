@@ -4,8 +4,7 @@ import numpy as np
 from ultralytics import YOLO
 
 # --- CONFIGURATION ---
-VIDEO_PATH = "New folder\\video2.mp4" # Replace with your video path or 0 for webcam
-VIEW = "left"                 # Choose: "left", "right", or "front"
+VIDEO_PATH = "New folder\\video2.mp4" # Replace with your video path or 0 for webcam                 # Choose: "left", "right", or "front"
 MODEL_PATH = "yolov8n-pose.pt" # Nano model is fastest. Use 'yolov8m-pose.pt' for higher accuracy.
 
 def calculate_angle(a, b, c):
@@ -16,7 +15,31 @@ def calculate_angle(a, b, c):
     if angle > 180.0:
         angle = 360 - angle
     return angle
+import numpy as np
 
+def detect_view(keypoints_data):
+    # Extract X, Y, and Confidence for shoulders and elbows
+    l_shldr, r_shldr = keypoints_data[5], keypoints_data[6]
+    l_elbow, r_elbow = keypoints_data[7], keypoints_data[8]
+    
+    # 1. Front vs Side Check
+    shoulder_dist_x = abs(l_shldr[0] - r_shldr[0])
+    l_arm_len = np.linalg.norm(l_shldr[:2] - l_elbow[:2])
+    r_arm_len = np.linalg.norm(r_shldr[:2] - r_elbow[:2])
+    avg_arm_len = (l_arm_len + r_arm_len) / 2
+
+    if avg_arm_len == 0: return "unknown"
+    
+    # If shoulders are wide apart relative to arm length, it's the front view
+    if shoulder_dist_x > (avg_arm_len * 0.8): 
+        return "front"
+    
+    # 2. Left vs Right Check
+    # Sum the confidence scores (index 2) of the arm joints
+    l_conf_total = l_shldr[2] + l_elbow[2] + keypoints_data[9][2]
+    r_conf_total = r_shldr[2] + r_elbow[2] + keypoints_data[10][2]
+    
+    return "left" if l_conf_total > r_conf_total else "right"
 def main():
     model = YOLO(MODEL_PATH)
     cap = cv2.VideoCapture(VIDEO_PATH)
@@ -36,6 +59,9 @@ def main():
         # Get keypoints from the first detected person
         if len(results[0].keypoints.xy) > 0:
             keypoints = results[0].keypoints.xy[0].cpu().numpy()
+            
+            keypoints_dir_data = results[0].keypoints.data[0].cpu().numpy()
+            VIEW = detect_view(keypoints_dir_data)
             
             # Ensure we actually detected enough points
             if len(keypoints) >= 11: 
@@ -81,6 +107,8 @@ def main():
                     cv2.putText(frame, f"State: {stage}", (50, 100), 
                                 cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                     cv2.putText(frame, f"Metric: {int(metric)}", (50, 150), 
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                    cv2.putText(frame, f"View: {VIEW.upper()}", (50, 200), 
                                 cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
                 except IndexError:

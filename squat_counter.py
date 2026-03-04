@@ -6,7 +6,7 @@ from ultralytics import YOLO
 # --- CONFIGURATION ---
 VIDEO_PATH = "C:\\Users\\Dell\\Desktop\\pushup\\New folder\\Bodyweight_Squats_1080p.mp4"        # 0 for webcam, or path to video file
 VIEW = "left"         # "left" or "right"
-API_URL = "http://127.0.0.1:8000/log_pushups/" # We can reuse the same endpoint for now
+API_URL = "http://127.0.0.1:8000/log_squats/" # We can reuse the same endpoint for now
 
 def calculate_angle(a, b, c):
     """Calculates the angle at the knee (b)."""

@@ -9,3 +9,11 @@ class PushupRecord(Base):
     reps = Column(Integer, nullable=False)
     view_type = Column(String, index=True)
     date_logged = Column(DateTime, default=datetime.utcnow)
+    
+class SquatRecord(Base):
+    __tablename__ = "squat_sessions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    reps = Column(Integer, nullable=False)
+    view_type = Column(String, index=True)
+    date_logged = Column(DateTime, default=datetime.utcnow)

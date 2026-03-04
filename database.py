@@ -12,7 +12,6 @@ Base = declarative_base()
 
 
 def init_db():
-    import models  # ensure models are registered before table creation
     Base.metadata.create_all(bind=engine)
 
 # Dependency to get the database session in our API routes

@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends
 from pydantic import BaseModel
 from datetime import datetime
+from models import SquatRecord
 
 from sqlalchemy.orm import Session
 
@@ -48,4 +49,38 @@ async def log_pushups(session: PushupSession, db: Session = Depends(get_db)):
             "view_type": record.view_type,
             "date_logged": record.date_logged.isoformat(),
         },
+    }
+
+class SquatSession(BaseModel):
+    reps: int
+    view_type: str
+    date: str = datetime.now().isoformat()
+
+@app.post("/log_squats/")
+async def log_squats(session: SquatSession, db: Session = Depends(get_db)):
+    
+    try:
+        date_logged = datetime.fromisoformat(session.date)
+    except ValueError:
+        date_logged = datetime.utcnow()
+
+    record = SquatRecord(
+        reps=session.reps,
+        view_type=session.view_type,
+        date_logged=date_logged
+    )
+
+    db.add(record)
+    db.commit()
+    db.refresh(record)
+
+    return {
+        "status": "success",
+        "message": "Squat session logged",
+        "data": {
+            "id": record.id,
+            "reps": record.reps,
+            "view_type": record.view_type,
+            "date_logged": record.date_logged.isoformat(),
+        }
     }
