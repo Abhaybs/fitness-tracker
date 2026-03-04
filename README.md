@@ -66,3 +66,4 @@ Angle Calculation: Uses numpy.arctan2 to robustly calculate joint angles, avoidi
 State Machine: Repetitions are counted using a deterministic state machine (transitioning from up -> down -> up) to eliminate false positives caused by bounding box flickering.
 
 Foreshortening Mitigation: To handle front-facing exercises where 2D angles fail due to camera foreshortening, the system tracks the raw vertical displacement (Y-axis) between joints.
+
