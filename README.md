@@ -66,3 +66,34 @@ State Machine: Repetitions are counted using a deterministic state machine (tran
 
 Foreshortening Mitigation: To handle front-facing exercises where 2D angles fail due to camera foreshortening, the system tracks the raw vertical displacement (Y-axis) between joints.
 
+```mermaid
+graph TD
+    A[Start: Load YOLOv8 Pose Model] --> B[Initialize Video/Webcam Stream]
+    B --> C{Frame Available?}
+    C -- No --> D[Calculate Total Reps & End]
+    C -- Yes --> E[Run Inference: Detect Keypoints]
+    
+    E --> F{Person Detected?}
+    F -- No --> C
+    F -- Yes --> G[Detect View: Left, Right, or Front]
+    
+    G --> H{View Type?}
+    
+    H -- Left/Right Side --> I[Track Shoulder, Elbow, Wrist Angle]
+    H -- Front --> J[Track Vertical Distance: Shoulder vs. Wrist]
+    
+    I --> K{Pushup State?}
+    J --> K
+    
+    K -- Angle < 90 / Low Y-Dist --> L[Stage: DOWN]
+    K -- Angle > 160 / High Y-Dist --> M{Was Stage DOWN?}
+    
+    M -- Yes --> N[Increment Counter & Stage: UP]
+    M -- No --> C
+    L --> C
+    N --> C
+    
+    D --> O[Send POST Request to FastAPI]
+    O --> P[SQLAlchemy: Store Session in PostgreSQL]
+    P --> Q[End Session]
+    ```
