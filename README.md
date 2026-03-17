@@ -9,7 +9,6 @@ Features:
 * **Exercise Modules:**
   * **Pushup Counter:** Tracks elbow-hinge angles (side view) or vertical shoulder/wrist displacement (front view).
   * **Squat Counter:** Enforces strict coordinate-based physics checks (hip-to-knee Y-coordinate ratio) to ensure the user breaks parallel before counting a rep.
-  * **Plank Timer:** Intelligent posture correction that checks for collinearity between the shoulder, hip, and ankle, only timing the user when form is strictly correct.
 * **Decoupled Architecture:** Features a REST API microservice that asynchronously logs session data without blocking the real-time video processing thread.
 * **Persistent Storage:** Uses SQLAlchemy ORM and PostgreSQL to permanently log workout history.
 
@@ -53,12 +52,12 @@ To run the Pushup Counter:
 Bash
 
 python main.py
-To run the strict Squat Counter:
+To run the strict pushup Counter:
 
 Bash
 
 python squat_counter.py
-To run the Plank form-evaluator:
+To run the squat count evaluator:
 
 🧠 Core Logic & Architecture
 Angle Calculation: Uses numpy.arctan2 to robustly calculate joint angles, avoiding division-by-zero errors inherent in standard Euclidean geometry.
